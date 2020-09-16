@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Message</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+
+<body>
+    <div class="container">
+        <br><br>
+        <center>
+            <ol id="messages"></ol>
+            <br>
+            <form action="" onsubmit="return sendMessage();">
+                <input type="text" id="message" placeholder="  Enter Text" autocomplete="off" style="width: 300px; height: 50px;
+            border: 3px solid gray; border-radius: 5px; outline: none;">
+
+                <button id="message" class="btn btn-lg btn-outline-info" style="margin-top: -5px;">send</button>
+                <br><br><br>
+            </form>
+        </center>
+
+
+
+        <!-- The core Firebase JS SDK is always required and must be listed first -->
+        <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-app.js"></script>
+
+        <!-- including firebase database -->
+
+        <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-database.js"></script>
+
+
+        <!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+        <script src="https://www.gstatic.com/firebasejs/7.20.0/firebase-analytics.js"></script>
+
+        <script>
+            // Your web app's Firebase configuration
+            // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+            var firebaseConfig = {
+                apiKey: "AIzaSyAF2w6p8pUToubPvB9TJV_yIJC1YCQyiHg",
+                authDomain: "chat-app-f8817.firebaseapp.com",
+                databaseURL: "https://chat-app-f8817.firebaseio.com",
+                projectId: "chat-app-f8817",
+                storageBucket: "chat-app-f8817.appspot.com",
+                messagingSenderId: "739104532100",
+                appId: "1:739104532100:web:a2b02140fc65932be784d1",
+                measurementId: "G-09L9QY8W97"
+            };
+            // Initialize Firebase
+            firebase.initializeApp(firebaseConfig);
+            firebase.analytics();
+
+            var myName = prompt("Enter Your Name");
+
+            function sendMessage() {
+                var message = document.getElementById("message").value;
+
+                firebase.database().ref("messages").push().set({
+                    "sender": myName,
+                    "messages": message
+                });
+
+
+                return false;
+            }
+
+            firebase.database().ref("messages").on("child_added", function (snapshot) {
+                var html = "";
+                html += "<li id='message-" + snapshot.key + "'>";
+                if (snapshot.val().sender == myName) {
+                    html += "<button data-id='" + snapshot.key + "' onclick = 'deleteMessage(this);'>";
+                    html += "Delete";
+                    html += "</button>"
+                }
+                html += snapshot.val().sender + ": " + snapshot.val().messages;
+                html += "</li>";
+
+                document.getElementById("messages").innerHTML += html;
+            });
+            function deleteMessage(self) {
+                var messageId = self.getAttribute("data-id");
+
+                firebase.database().ref("messages").child(messageId).remove();
+            }
+
+            firebase.database().ref("messages").on("child_removed", function (snapshot) {
+                document.getElementById("message-" + snapshot.key).innerHTML = "This message has been removed";
+            });
+            message.value = " "
+
+        </script>
+    </div>
+</body>
+
+</html>
